@@ -19,12 +19,12 @@ const userKeyboardCommands = Markup.inlineKeyboard([
       Markup.button.callback("Facts 📚", "facts"),
       Markup.button.callback("Quotes 📚", "quotes"),
    ],
+   [Markup.button.callback("🥳 Birthday 🎉", "birthday")],
    [Markup.button.callback("Past questions 📖", pastQuestionsCB)],
 ]);
 
 bot.start((ctx) => {
    const replyKeyboard = userKeyboardCommands.resize();
-   console.log(ctx.chat);
    ctx.reply("What would you like to do", replyKeyboard);
    // console.log(ctx.message.date);
    values = [
@@ -42,6 +42,10 @@ bot.use(stage.middleware());
 bot.on("document", (ctx) => {
    ctx.scene.enter(getFileInfoScene);
 });
+
+bot.action("birthday", (ctx) => {
+   ctx.scene.enter("birthdayScene")
+})
 
 bot.help((ctx) => {
    const replyKeyboard = Markup.keyboard([
@@ -71,26 +75,9 @@ bot.action("quotes", async (ctx) => {
 });
 
 bot.action("weather", (ctx) => {
-   const replyKeyboard = Markup.keyboard([
-      Markup.button.callback("Future Forcast", "future"),
-   ])
-      .oneTime()
-      .resize();
-
-   ctx.reply("choose an option", replyKeyboard);
+  ctx.scene.enter("getWeather")
 });
 
-bot.action("future", (ctx) => {
-   ctx.answerCbQuery();
-   const replyKeyboard = Markup.inlineKeyboard([
-      [
-         Markup.button.callback("Tomorrow", "tomorrow"),
-         Markup.button.callback("next 3 days", "next_3_days"),
-      ],
-      [Markup.button.callback("next 5 days", "next_5_days")],
-   ]).resize();
-   ctx.editMessageText("Choose an option", replyKeyboard);
-});
 
 bot.action(pastQuestionsCB, (ctx) => {
    ctx.answerCbQuery();

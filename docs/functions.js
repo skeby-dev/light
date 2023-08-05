@@ -37,43 +37,6 @@ async function getQuotes() {
     return [author, quote]
 }
 
-async function getWeather() {
-  const apiKey = process.env.WEATHER_API_KEY;
-  const url = `http://dataservice.accuweather.com/forecasts/v1/daily/5day/4607?apikey=${apiKey}&details=false&metric=true`;
 
-  await fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      weatherInfo = {
-        day1: {
-          date: data["DailyForecasts"][0]["Date"],
-          minTemp: data["DailyForecasts"][0]["Temperature"]["Minimum"],
-          maxTemp: data["DailyForecasts"][0]["Temperature"]["Maximum"],
-          day: data["DailyForecasts"][0]["Night"]["IconPharse"],
-        },
-        day2: {
-          date: data["DailyForecasts"][1]["Date"],
-          minTemp: data["DailyForecasts"][1]["Temperature"]["Minimum"],
-          maxTemp: data["DailyForecasts"][1]["Temperature"]["Maximum"],
-        },
-        day3: {
-          date: data["DailyForecasts"][2]["Date"],
-          minTemp: data["DailyForecasts"][2]["Temperature"]["Minimum"],
-          maxTemp: data["DailyForecasts"][2]["Temperature"]["Maximum"],
-        },
-        day4: {
-          date: data["DailyForecasts"][3]["Date"],
-          minTemp: data["DailyForecasts"][3]["Temperature"]["Minimum"],
-          maxTemp: data["DailyForecasts"][3]["Temperature"]["Maximum"],
-        },
-        day5: {
-          date: data["DailyForecasts"][4]["Date"],
-          minTemp: data["DailyForecasts"][4]["Temperature"]["Minimum"],
-          maxTemp: data["DailyForecasts"][4]["Temperature"]["Maximum"],
-        },
-      };
-    });
-  console.log(weatherInfo);
-}
 
-module.exports = { getWeather, getFacts, getQuotes };
+module.exports = { getFacts, getQuotes };
