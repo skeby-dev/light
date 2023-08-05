@@ -1,25 +1,17 @@
-// const { Scenes, Markup, session} = require("telegraf");
-// const { bot } = require('./bot');
-// const { connection, } = require('./database');
 
 const { Markup, session } = require("telegraf");
 const { getWeather, getFacts, getQuotes } = require("./docs/functions.js");
 const dotenv = require("dotenv");
 const { bot } = require("./docs/bot.js");
-const { connection } = require("./docs/database.js");
-const { logPQs, logUser } = require("./docs/database.js");
+// const { logPQs, logUser } = require("./docs/database.js");
 const { stage } = require("./docs/scenes/index.js");
-
 const getFileInfoScene = "getFileInfo";
-
 dotenv.config();
 
 const pastQuestionsCB = "past_questions";
 let tracker = "";
 let userPastQuestionSelections = { level: "", department: "" };
 
-//registering stages
-// const stage = new Scenes.Stage([hashTagScene, fileInfoScene]);
 
 const userKeyboardCommands = Markup.inlineKeyboard([
    [Markup.button.callback("☀️Weather⛅️", "weather")],

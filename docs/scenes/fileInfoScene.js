@@ -1,5 +1,5 @@
 const { Scenes } = require("telegraf");
-const { connection, logPQs, logUser } = require("../database.js");
+const { getDocumentsID, storeDocumentID } = require("../pseudo_database")
 const getFileInfoScene = "getFileInfo";
 const getHashTagScene = "getHashTag";
 const fileInfoScene = new Scenes.BaseScene(getFileInfoScene);
@@ -33,7 +33,7 @@ fileInfoScene.enter((ctx) => {
          //expected to only work for ungrouped documents since telegram doesn't support caption for grouped
          //if later update support caption this code should also be updated
          ctx.session.values.forEach((document) => {
-            logPQs(ctx, document);
+            storeDocumentID(document[4], document[0]);
          });
       }
    } else {

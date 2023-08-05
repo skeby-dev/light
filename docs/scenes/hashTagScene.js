@@ -1,5 +1,5 @@
 const {Scenes, Markup} = require("telegraf");
-const { connection,  logPQs, logUser } = require('../database.js');
+const { getDocumentsID, storeDocumentID } = require("../pseudo_database")
 const getHashTagScene = "getHashTag";
 const hashTagScene = new Scenes.BaseScene(getHashTagScene);
 
@@ -37,7 +37,7 @@ hashTagScene.enter((ctx) => {
     try {
        await ctx.session.values.forEach(async (document) => {
           document[4] = ctx.message.text;
-          result = await logPQs(ctx, document);
+          result = await storeDocumentID(document[4], document[0]);
        });
  
        if (result === "sucessful") {
