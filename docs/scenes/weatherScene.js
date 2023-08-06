@@ -40,6 +40,7 @@ getWeatherScene.enter((ctx) => {
 });
 
 getWeatherScene.action("today", async (ctx) => {
+    ctx.answerCbQuery();
    try {
       const weatherInfo = fullWeatherInformation;
       if (weatherInfo) {
@@ -68,6 +69,7 @@ Weather for Today🌤🌞\nDate: ${new Date(
 });
 
 getWeatherScene.action("5_Days", async (ctx) => {
+    ctx.answerCbQuery();
    try {
       const weatherInfo = fullWeatherInformation;
       ctx.reply(`Weather for Next Five Days🌤️⛅️
