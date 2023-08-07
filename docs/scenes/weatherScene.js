@@ -7,8 +7,10 @@ let fullWeatherInformation;
 
 async function getWeatherInfo() {
    try {
-      const filePath =
-         "C:/Users/danie/Desktop/light/docs/scenes/data/Sun Aug 06 2023.json";
+      const date = new Date().toDateString();
+      const dirPath = path.join(__dirname ,"data")
+      const filePath = path.join(dirPath, date + ".json");
+      console.log(filePath)
       fs.access(filePath, fs.constants.F_OK, async (err) => {
          if (!err) {
              const date = new Date().toDateString();
@@ -228,5 +230,5 @@ async function readWeatherInFile(date) {
       return "";
    }
 }
-
+console.log(__dirname)
 module.exports = { getWeatherScene };
