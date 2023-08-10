@@ -1,8 +1,10 @@
 const {Scenes, Markup} = require("telegraf");
+const csvtojson = require("csvtojson")
 const { getDocumentsID, storeDocumentID } = require("../pseudo_database");
 const birthdayScene = new Scenes.BaseScene("birthdayScene");
 const registerBirthdayNameScene = new Scenes.BaseScene("registerBirthdayScene");
 const registerBirthdayUsernameScene = new Scenes.BaseScene("registerBirthdayUsername");
+const registerBirthdayDateScene = new Scenes.BaseScene("registerBirthdayDate")
 
 birthdayScene.enter( ctx => {
     const replyKeyboard = Markup.inlineKeyboard([[
@@ -31,6 +33,7 @@ birthdayScene.action("back", ctx => {
 })
 
 registerBirthdayNameScene.enter((ctx) => {
+    replyKeyboard
     ctx.reply("Please send name of celebrant\\. *_\\*required_*", {
         parse_mode: "MarkdownV2"
     })
@@ -53,16 +56,26 @@ registerBirthdayUsernameScene.enter(ctx => {
 })
 
 registerBirthdayUsernameScene.on("text", async (ctx) => {
+    try {
     await ctx.reply(`Celebrant username set to *_@${ctx.message.text}_* ✅` ,{
         parse_mode: "MarkdownV2"
     });
-    // ctx.scene.enter("")
+    ctx.scene.enter("registerBirthdayDate")
+    } catch {
+        ctx.reply("Sorry something went wrong please try again later")
+        ctx.scene.leave();
+    }
 })
 
 registerBirthdayUsernameScene.action("skip", ctx => {
     ctx.answerCbQuery();
-    ctx.editMessageText("Username skipped ☑️",);
-    // ctx.scene.enter("")
+    ctx.editMessageText("Username skipped ☑️");
+    ctx.scene.enter("registerBirthdayDate");
 })
 
-module.exports = {birthdayScene, registerBirthdayNameScene, registerBirthdayUsernameScene}
+registerBirthdayDateScene.enter(ctx => {
+    ctx.reply("Please send birthday of celebrant in format *mm/dd/yyyy* e.g _1/10/2023_ for _10th January 2023_", 
+    {parse_mode:"MarkdownV2"})
+})
+
+module.exports = {birthdayScene, registerBirthdayNameScene, registerBirthdayUsernameScene, registerBirthdayDateScene}

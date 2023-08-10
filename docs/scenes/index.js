@@ -1,11 +1,12 @@
 const { Scenes } = require("telegraf");
 const { hashTagScene, getHashTagScene } = require("./hashTagScene");
 const { fileInfoScene, getFileInfoScene } = require("./fileInfoScene");
-const { getWeatherScene } = require("./weatherScene")
+const { getWeatherScene, getWeatherRequestLocationScene } = require("./weatherScene")
 const {
    birthdayScene,
    registerBirthdayNameScene,
    registerBirthdayUsernameScene,
+   registerBirthdayDateScene,
 } = require("./birthdayScene");
 
 const stage = new Scenes.Stage([
@@ -14,7 +15,9 @@ const stage = new Scenes.Stage([
    birthdayScene,
    registerBirthdayNameScene,
    registerBirthdayUsernameScene,
-   getWeatherScene
+   registerBirthdayDateScene,
+   getWeatherScene, 
+   getWeatherRequestLocationScene
 ]);
 
 module.exports = { stage };

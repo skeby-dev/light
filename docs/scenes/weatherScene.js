@@ -1,37 +1,42 @@
 const { Scenes, Markup } = require("telegraf");
 const getWeatherScene = new Scenes.BaseScene("getWeather");
+const getWeatherRequestLocationScene = new Scenes.BaseScene("getWeatherRequestLocation");
 const fs = require("fs");
 const path = require("path");
 
 let fullWeatherInformation;
 
-async function getWeatherInfo() {
-   try {
-      const date = new Date().toDateString();
-      const dirPath = path.join(__dirname ,"data")
-      const filePath = path.join(dirPath, date + ".json");
-      console.log(filePath)
-      fs.access(filePath, fs.constants.F_OK, async (err) => {
-         if (!err) {
-             const date = new Date().toDateString();
-             fullWeatherInformation = await readWeatherInFile(date);
-        } else {
-             fullWeatherInformation = await getWeather();
-             const date = new Date().toDateString();
-             await storeWeatherInFile(date, fullWeatherInformation);
-         }
-      });
-   } catch (error) {
-      console.error(
-         "Error fetching and storing weather information from api:",
-         error
-      );
-   }
-}
 
-getWeatherInfo();
+
 
 getWeatherScene.enter((ctx) => {
+   const replyKeyboard = Markup.inlineKeyboard(
+      [[Markup.button.callback("Ikotun", "ikotun")],
+      [Markup.button.callback("Ota(CU)", "ota")],],
+      [Markup.button.callback("Request Location", "request_location")],
+   )
+      .resize()
+      .oneTime();
+   ctx.editMessageText("Please pick date of forcast", replyKeyboard);
+});
+
+getWeatherScene.action("ikotun", (ctx) => {
+   showDateKeybaords(ctx)
+   ctx.session.userSelectedLocation = "ikotun"
+   getWeatherInfo("ikotun")
+})
+
+getWeatherScene.action("ota", (ctx) => {
+   showDateKeybaords(ctx)
+   ctx.session.userSelectedLocation = "ota"
+   getWeatherInfo("ota")
+})
+
+getWeatherScene.action("request_location", (ctx) => {
+   ctx.scene.enter("getWeatherRequestLocation")
+})
+
+function showDateKeybaords(ctx) {
    const replyKeyboard = Markup.inlineKeyboard([
       [Markup.button.callback("Today", "today")],
       [Markup.button.callback("Next Five Days", "5_Days")],
@@ -39,7 +44,7 @@ getWeatherScene.enter((ctx) => {
       .resize()
       .oneTime();
    ctx.editMessageText("Please pick date of forcast", replyKeyboard);
-});
+}
 
 getWeatherScene.action("today", async (ctx) => {
     ctx.answerCbQuery();
@@ -47,6 +52,7 @@ getWeatherScene.action("today", async (ctx) => {
       const weatherInfo = fullWeatherInformation;
       if (weatherInfo) {
          ctx.reply(`
+<b>${ctx.session.userSelectedLocation.toUpperCase()}</b>
 Weather for Today🌤🌞\nDate: ${new Date(
             weatherInfo.day1["date"] * 1000
          ).toLocaleDateString("en-US")}\nMax Temperature: ${
@@ -60,7 +66,9 @@ Weather for Today🌤🌞\nDate: ${new Date(
          }\nNight Weather 🌃⛅️: ${
             weatherInfo.day1["nightDesc"]
          } 🌙\nStay prepared and have a nice day! 😊🌈
-        `);
+        `, {
+         parse_mode:"HTML",
+        });
       } else {
          ctx.reply("Error fetching weather data. Please try again later.");
       }
@@ -74,7 +82,9 @@ getWeatherScene.action("5_Days", async (ctx) => {
     ctx.answerCbQuery();
    try {
       const weatherInfo = fullWeatherInformation;
-      ctx.reply(`Weather for Next Five Days🌤️⛅️
+      ctx.reply(`
+      <b>${ctx.session.userSelectedLocation.toUpperCase()}</b>
+Weather for Next Five Days🌤️⛅️
    
 Date: ${new Date(weatherInfo.day1["date"] * 1000).toLocaleDateString("en-US")}
 Max Temperature: ${weatherInfo.day1["maxTemp"]}°C
@@ -112,20 +122,27 @@ Morning Weather 🌅⛅️:  ${weatherInfo.day5["dayDesc"]}
 Night Weather 🌃⛅️: ${weatherInfo.day5["nightDesc"]} 🌙
 
 Stay prepared and have a nice day! 😊
-   `);
+   `, {
+      parse_mode:"HTML"
+   });
    } catch (error) {
       console.error("Error while handling 'today' action:", error);
       ctx.reply("An error occurred while fetching weather data.");
    }
 });
 
-async function getWeather() {
+async function getWeather(location = "ikotun") {
    const apiKey = process.env.WEATHER_API_KEY;
-   const url = `http://dataservice.accuweather.com/forecasts/v1/daily/5day/4607?apikey=${apiKey}&details=true&metric=true`;
+   const locationIDs = {
+      ikotun: 2014810,
+      ota: 925588,
+   }
+   const url = `http://dataservice.accuweather.com/forecasts/v1/daily/5day/${locationIDs[location]}?apikey=${apiKey}&details=true&metric=true`;
 
    try {
       const response = await fetch(url);
       const data = await response.json();
+      console.log(response.header.get("RateLimit-Remaining"))
 
       const weatherInfo = {
          day1: {
@@ -196,9 +213,32 @@ async function getWeather() {
    }
 }
 
-async function storeWeatherInFile(date, weather) {
-   const directoryPath = path.join(__dirname, "data");
-   const filePath = path.join(directoryPath, date + ".json");
+async function getWeatherInfo(location = "ikotun") {
+   try {
+      const date = new Date().toDateString();
+      const dirPath = path.join(__dirname ,"weather_data")
+      const filePath = path.join(dirPath, date + " " + location + ".json");
+      fs.access(filePath, fs.constants.F_OK, async (err) => {
+         if (!err) {
+             const date = new Date().toDateString();
+             fullWeatherInformation = await readWeatherInFile(date, location);
+        } else {
+             fullWeatherInformation = await getWeather(location);
+             const date = new Date().toDateString();
+             await storeWeatherInFile(date, location,  fullWeatherInformation);
+         }
+      });
+   } catch (error) {
+      console.error(
+         "Error fetching and storing weather information from api:",
+         error
+      );
+   }
+}
+
+async function storeWeatherInFile(date, location,  weather) {
+   const directoryPath = path.join(__dirname, "weather_data");
+   const filePath = path.join(directoryPath, date + " " + location + ".json");
    const dataJson = JSON.stringify(weather);
 
    fs.mkdir(directoryPath, { recursive: true }, (error) => {
@@ -216,10 +256,10 @@ async function storeWeatherInFile(date, weather) {
    });
 }
 
-async function readWeatherInFile(date) {
+async function readWeatherInFile(date, location) {
    try {
-      const directoryPath = path.join(__dirname, "data");
-      const filePath = path.join(directoryPath, date + ".json");
+      const directoryPath = path.join(__dirname, "weather_data");
+      const filePath = path.join(directoryPath, date + " " + location + ".json");
 
       const data = fs.readFileSync(filePath, "utf8");
       const info = await JSON.parse(data);
@@ -230,5 +270,4 @@ async function readWeatherInFile(date) {
       return "";
    }
 }
-console.log(__dirname)
-module.exports = { getWeatherScene };
+module.exports = { getWeatherScene,  getWeatherRequestLocationScene };
