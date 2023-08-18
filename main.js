@@ -54,13 +54,7 @@ bot.on("commands", async (ctx) => {
 
 
 bot.on("document", async (ctx) => {
-   // const fileInfo  = await ctx.telegram.getFile("BQACAgQAAxkBAAIHpGTcn0y3pHjcsRREKXOKdPdPIBTOAAI-EgACponpUpOLjr-44jrxMAQ")
-   // const fileUrl = `https://api.telegram.org/file/bot6569517429:AAHcBz40nTTokiM_Vm4cTAkIMQDqaiNNpIM/documents/file_0.csv`;
-   // console.log(fileInfo)
-   // // if(ctx.chat){
 
-   // // } else {
-   //    // }
          ctx.scene.enter(getFileInfoScene);
 });
 
