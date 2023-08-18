@@ -1,89 +1,67 @@
-
 const { Markup, session } = require("telegraf");
-const { getWeather, getFacts, getQuotes } = require("./docs/functions.js");
-const dotenv = require("dotenv");
-const { bot } = require("./docs/bot.js");
+const { getWeather, getFacts, getQuotes } = require("./docs/functions.js"); // i imported some functions for the weather and some other fuctionalities. You can ctrl + click require location to check it out
+const dotenv = require("dotenv"); // this is for the .env file, it is at the root directory i'm using it to hide the api keys in case someone else get holds of the code. you can ask chatgpt to tell you more about it. you won't see it on github but i'll send it to you. 
+const { bot } = require("./docs/bot.js");// the code was getting too long so i seperated it, its just to kinda of like for creating the bot, u can just copy paste code to chat gpt. 
 // const { logPQs, logUser } = require("./docs/database.js");
-const { stage } = require("./docs/scenes/index.js");
-const getFileInfoScene = "getFileInfo";   
+const { stage } = require("./docs/scenes/index.js");//stages its almost complex, and kind of long to explain i'd rather explain on call or u can ask chat gpt
+const getFileInfoScene = "getFileInfo"; //for a scene, its also part of stages we can talk face to face about it
 dotenv.config();
 
-const pastQuestionsCB = "past_questions";
-let tracker = "";
+const pastQuestionsCB = "past_questions"; 
+let tracker = ""; // doesn't do what's suppose to do, so not functional yet, worked for a while, until code got too big
 let userPastQuestionSelections = { level: "", department: "" };
 
-
-const userKeyboardCommands = Markup.inlineKeyboard([
+const userKeyboardCommands = Markup.inlineKeyboard([ //okay this is just creating the buttons, its actually the main menu btns, if u start the but u'll see, normally u create buttons when u declare a command or an action(explanation about actions is later) but i created this as a global variable because intially i wanted users to be able to go back to main menu if there was an error
    [Markup.button.callback("☀️Weather⛅️", "weather")],
    [
       Markup.button.callback("Facts 📚", "facts"),
       Markup.button.callback("Quotes 📚", "quotes"),
    ],
-   [Markup.button.url("🥳 Birthday 🎉", "t.me/culight_bot?start=start&scene=birthdayScene")],
+   [
+      Markup.button.url(
+         "🥳 Birthday 🎉",
+         "t.me/culight_bot?start=start&scene=birthdayScene"
+      ),
+   ],
    [Markup.button.callback("🥳 Birthday OG🎉", "birthday")],
    [Markup.button.callback("Past questions 📖", pastQuestionsCB)],
 ]);
 
-bot.start((ctx) => {
-   const startPayload = ctx.startPayload
-   if(startPayload){
-      console.log(startPayload)
+bot.start((ctx) => {//start command, 
+   const startPayload = ctx.startPayload;//not useful for now, the if statement if also not useful, and since the if is not usefull it automatically jumps to else which is the actuall code running
+   if (startPayload) {
+      console.log(startPayload);//not useful
    } else {
       const replyKeyboard = userKeyboardCommands.resize();
       ctx.reply("What would you like to do", replyKeyboard);
-
    }
-
-   // console.log(ctx.message.date);
-   // values = [
-   //    ctx.chat.id,
-   //    ctx.chat.first_name,
-   //    ctx.chat.username,
-   //    ctx.message.date,
-   // ];
-   // logUser(values);
 });
 
-bot.use(session());
-bot.use(stage.middleware());
+bot.use(session()); //for scenes and stages we can talk more on call
+bot.use(stage.middleware());//same
 
-bot.on("commands", async (ctx) => {
-   console.log(ctx.chat)
-})
-
-
-
-bot.on("document", async (ctx) => {
-         ctx.scene.enter(getFileInfoScene);
+bot.on("document", async (ctx) => { // so this shouldn't yet be 
+   ctx.scene.enter(getFileInfoScene);
 });
-
-// bot.on("text", async (ctx) => {
-//    const text = ctx.message.text
-//    const userID = ctx.message.from.id
-//    if(text.startsWith("/")){
-//       console.log("heyy")
-//       ctx.telegram.sendMessage(userID, "heyy", {
-//          reply_markup: {
-//             force_reply:true
-//          }
-//       })
-//    }
-// });
 
 bot.action("birthday", (ctx) => {
-   if(ctx.chat.type == "group" || ctx.chat.type == "supergroup" ||ctx.chat.type == "channel") {
+   if (
+      ctx.chat.type == "group" ||
+      ctx.chat.type == "supergroup" ||
+      ctx.chat.type == "channel"
+   ) {
       // ctx.
-      ctx.scene.enter("birthdayScene")
-  } else {
-     ctx.scene.enter("birthdayScene")
-  }
-})
+      ctx.scene.enter("birthdayScene");
+   } else {
+      ctx.scene.enter("birthdayScene");
+   }
+});
 
 bot.command("developer", async (ctx) => {
-   if(ctx.chat.id === 1173903586){
-      ctx.scene.enter("developerScene")
+   if (ctx.chat.id === 1173903586) {
+      ctx.scene.enter("developerScene");
    }
-})
+});
 
 bot.help((ctx) => {
    const replyKeyboard = Markup.keyboard([
@@ -113,9 +91,8 @@ bot.action("quotes", async (ctx) => {
 });
 
 bot.action("weather", (ctx) => {
-  ctx.scene.enter("getWeather")
+   ctx.scene.enter("getWeather");
 });
-
 
 bot.action(pastQuestionsCB, (ctx) => {
    ctx.answerCbQuery();
