@@ -54,7 +54,6 @@ bot.on("commands", async (ctx) => {
 
 
 bot.on("document", async (ctx) => {
-
          ctx.scene.enter(getFileInfoScene);
 });
 

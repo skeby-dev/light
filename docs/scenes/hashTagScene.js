@@ -32,20 +32,16 @@ hashTagScene.enter((ctx) => {
 
 hashTagScene.hears(/#[^\s]+/, async (ctx) => {
    const hashTagMessageID = ctx.message.message_id;
+   const hashtagMessage = ctx.message.text
    let result;
    try {
-      // await ctx.session.values.forEach(async (document) => {
-      //    document.pq_hashtag = ctx.message.text;
-      //    //  console.log(document)
-      //    await storeDocumentID(document);
-      // });
+      await ctx.session.values.forEach(async (document) => {
+         document.pq_hashtag = hashtagMessage;
+         //  console.log(document)
+      });
+      await storeDocumentID(ctx.session.values, hashtagMessage);
 
-      for document   
-
-      if (result === "sucessful") {
-         ctx.reply("Documents recorded 👍");
-         ctx.scene.leave();
-      }
+      ctx.scene.leave();
    } catch (error) {
       ctx.reply(
          "Sorry grouped documents not recorded, try again later or contact developer",
