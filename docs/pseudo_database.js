@@ -1,18 +1,48 @@
 const { error } = require("console");
 const fs = require("fs");
+const async = require("async");
 const path = require("path");
 
-async function storeDocumentID(hashtag, documentID) {
-   const filePath = path.join("data", hashtag + ".txt");
-   const data = documentID + "\n";
+const writeQueue = async.queue(async (task) => {
+   try {
+      const { filePath, data } = task;
+      console.log(data)
+      await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+      console.log(`${filePath} updated successfully`)
+   } catch (error) {
+      console.error(`Error updating ${task.filePath}:`, error);
+   }
+},1);
 
-   fs.appendFile(filePath, data, (error) => {
-      if (error) {
-         console.error("Error creating/appending to file", error);
-      } else {
-         console.log("Data appended to file successfully");
+function enqueueUpdate(filePath, data){
+   writeQueue.push({filePath, data})
+}
+
+async function storeDocumentID(past_question) {
+   const pq_hashtag = past_question.pq_hashtag;
+   const dirPath = path.join(__dirname, "PQ data");
+   const filePath = path.join(dirPath, pq_hashtag + ".json");
+
+   try {
+      await fs.promises.mkdir(dirPath, { recursive: true });
+
+      let data = [];
+      try {
+         const existingData = await fs.promises.readFile(filePath, "utf8");
+         data = await JSON.parse(existingData);
+      } catch (err) {
+         console.log("nothing inside file");
       }
-   });
+
+      data.push(past_question);
+      enqueueUpdate(filePath, data);
+
+   } catch (err) {
+      console.error(
+         `Error creating or appending ${pq_hashtag} directory or document:`,
+         err
+      );
+   }
 }
 
 function getDocumentsID(hashtag) {

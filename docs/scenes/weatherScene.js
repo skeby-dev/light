@@ -20,16 +20,16 @@ getWeatherScene.enter((ctx) => {
    ctx.editMessageText("Please pick date of forcast", replyKeyboard);
 });
 
-getWeatherScene.action("ikotun", (ctx) => {
+getWeatherScene.action("ikotun", async (ctx) => {
+   await getWeatherInfo("ikotun")
    showDateKeybaords(ctx)
    ctx.session.userSelectedLocation = "ikotun"
-   getWeatherInfo("ikotun")
 })
 
-getWeatherScene.action("ota", (ctx) => {
+getWeatherScene.action("ota", async (ctx) => {
+   await getWeatherInfo("ota")
    showDateKeybaords(ctx)
    ctx.session.userSelectedLocation = "ota"
-   getWeatherInfo("ota")
 })
 
 getWeatherScene.action("request_location", (ctx) => {
@@ -81,7 +81,7 @@ Weather for Today🌤🌞\nDate: ${new Date(
 getWeatherScene.action("5_Days", async (ctx) => {
     ctx.answerCbQuery();
    try {
-      const weatherInfo = fullWeatherInformation;
+      const weatherInfo =  fullWeatherInformation;
       ctx.reply(`
       <b>${ctx.session.userSelectedLocation.toUpperCase()}</b>
 Weather for Next Five Days🌤️⛅️
@@ -142,7 +142,8 @@ async function getWeather(location = "ikotun") {
    try {
       const response = await fetch(url);
       const data = await response.json();
-      console.log(response.header.get("RateLimit-Remaining"))
+      let rateLimit = response.headers.get("RateLimit-Remaining")
+      console.log(`Your rate limit is down to ${rateLimit}, Take note.`)
 
       const weatherInfo = {
          day1: {
@@ -263,6 +264,15 @@ async function readWeatherInFile(date, location) {
 
       const data = fs.readFileSync(filePath, "utf8");
       const info = await JSON.parse(data);
+      if(info == null){
+         fs.unlink(filePath, err => {
+            if(err){
+               console.log("Error Force Deleting File Attention Needed")
+            } else {
+               console.log("File Deleted Successfully")
+            }
+         })
+      }
       console.log("Weather Information read from file successfully");
       return info;
    } catch (error) {

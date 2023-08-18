@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const { bot } = require("./docs/bot.js");
 // const { logPQs, logUser } = require("./docs/database.js");
 const { stage } = require("./docs/scenes/index.js");
-const getFileInfoScene = "getFileInfo";
+const getFileInfoScene = "getFileInfo";   
 dotenv.config();
 
 const pastQuestionsCB = "past_questions";
@@ -19,32 +19,77 @@ const userKeyboardCommands = Markup.inlineKeyboard([
       Markup.button.callback("Facts 📚", "facts"),
       Markup.button.callback("Quotes 📚", "quotes"),
    ],
-   [Markup.button.callback("🥳 Birthday 🎉", "birthday")],
+   [Markup.button.url("🥳 Birthday 🎉", "t.me/culight_bot?start=start&scene=birthdayScene")],
+   [Markup.button.callback("🥳 Birthday OG🎉", "birthday")],
    [Markup.button.callback("Past questions 📖", pastQuestionsCB)],
 ]);
 
 bot.start((ctx) => {
-   const replyKeyboard = userKeyboardCommands.resize();
-   ctx.reply("What would you like to do", replyKeyboard);
+   const startPayload = ctx.startPayload
+   if(startPayload){
+      console.log(startPayload)
+   } else {
+      const replyKeyboard = userKeyboardCommands.resize();
+      ctx.reply("What would you like to do", replyKeyboard);
+
+   }
+
    // console.log(ctx.message.date);
-   values = [
-      ctx.chat.id,
-      ctx.chat.first_name,
-      ctx.chat.username,
-      ctx.message.date,
-   ];
+   // values = [
+   //    ctx.chat.id,
+   //    ctx.chat.first_name,
+   //    ctx.chat.username,
+   //    ctx.message.date,
+   // ];
    // logUser(values);
 });
 
 bot.use(session());
 bot.use(stage.middleware());
 
-bot.on("document", (ctx) => {
-   ctx.scene.enter(getFileInfoScene);
+bot.on("commands", async (ctx) => {
+   console.log(ctx.chat)
+})
+
+
+
+bot.on("document", async (ctx) => {
+   // const fileInfo  = await ctx.telegram.getFile("BQACAgQAAxkBAAIHpGTcn0y3pHjcsRREKXOKdPdPIBTOAAI-EgACponpUpOLjr-44jrxMAQ")
+   // const fileUrl = `https://api.telegram.org/file/bot6569517429:AAHcBz40nTTokiM_Vm4cTAkIMQDqaiNNpIM/documents/file_0.csv`;
+   // console.log(fileInfo)
+   // // if(ctx.chat){
+
+   // // } else {
+   //    // }
+         ctx.scene.enter(getFileInfoScene);
 });
 
+// bot.on("text", async (ctx) => {
+//    const text = ctx.message.text
+//    const userID = ctx.message.from.id
+//    if(text.startsWith("/")){
+//       console.log("heyy")
+//       ctx.telegram.sendMessage(userID, "heyy", {
+//          reply_markup: {
+//             force_reply:true
+//          }
+//       })
+//    }
+// });
+
 bot.action("birthday", (ctx) => {
-   ctx.scene.enter("birthdayScene")
+   if(ctx.chat.type == "group" || ctx.chat.type == "supergroup" ||ctx.chat.type == "channel") {
+      // ctx.
+      ctx.scene.enter("birthdayScene")
+  } else {
+     ctx.scene.enter("birthdayScene")
+  }
+})
+
+bot.command("developer", async (ctx) => {
+   if(ctx.chat.id === 1173903586){
+      ctx.scene.enter("developerScene")
+   }
 })
 
 bot.help((ctx) => {
