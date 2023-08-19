@@ -38,5 +38,18 @@ async function getQuotes() {
 }
 
 
+// bot.action("facts", async (ctx) => {
+//    ctx.answerCbQuery();
+//    let fact = await getFacts();
+//    console.log(fact);
+//    ctx.reply(`Fact: ${fact}`);
+// });
+
+// bot.action("quotes", async (ctx) => {
+//    ctx.answerCbQuery();
+//    const [author, quote] = await getQuotes();
+//    ctx.reply(`quote: ${quote} - ${author}`);
+// });
+
 
 module.exports = { getFacts, getQuotes };

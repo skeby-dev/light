@@ -3,6 +3,7 @@ const { hashTagScene, getHashTagScene } = require("./hashTagScene");
 const { fileInfoScene, getFileInfoScene } = require("./fileInfoScene");
 const { getWeatherScene, getWeatherRequestLocationScene } = require("./weatherScene")
 const {developerScene} = require("./developerScene")
+const { getPastQuestionScene } = require("./getPastQuestionScene")
 const {
    birthdayScene,
    registerWithCSV,
@@ -21,7 +22,8 @@ const stage = new Scenes.Stage([
    registerBirthdayDateScene,
    getWeatherScene, 
    getWeatherRequestLocationScene,
-   developerScene
+   developerScene,
+   getPastQuestionScene
 ]);
 
 module.exports = { stage };

@@ -3,20 +3,7 @@ const fs = require("fs");
 const async = require("async");
 const path = require("path");
 
-// const writeQueue = async.queue(async (task) => {
-//    try {
-//       const { filePath, data } = task;
-//       console.log(data)
-//       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
-//       console.log(`${filePath} updated successfully`)
-//    } catch (error) {
-//       console.error(`Error updating ${task.filePath}:`, error);
-//    }
-// },1);
 
-// function enqueueUpdate(filePath, data){
-//    writeQueue.push({filePath, data})
-// }
 
 async function storeDocumentID(values, hashtag) {
    const dirPath = path.join(__dirname, "PQ data");
