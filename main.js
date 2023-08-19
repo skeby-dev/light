@@ -27,7 +27,15 @@ bot.start((ctx) => {
 
 
 bot.on("document", async (ctx) => { 
-   ctx.scene.enter(getFileInfoScene);
+   const documentID = ctx.message.message_id;
+
+   if(ctx.chat.type == "private") {
+      ctx.reply("Action only allowed in authorized groups", {
+         reply_to_message_id: documentID,
+      })
+   } else {
+      ctx.scene.enter(getFileInfoScene);
+   }
 });
 
 bot.action("birthday", (ctx) => {
