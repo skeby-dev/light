@@ -1,11 +1,13 @@
-const { error } = require("console");
+const { Console } = require("console");
 const fs = require("fs");
-const async = require("async");
 const path = require("path");
+const { Input } = require('telegraf');
+let hashtagInfoFileID;
+let hashtagInfoOnTelegramServer;
+let hashtagInfoOnTelegramServerMsgID;
 
 
-
-async function storeDocumentID(values, hashtag) {
+async function storeDocumentID(ctx, values, hashtag) {
    const dirPath = path.join(__dirname, "PQ data");
    const filePath = path.join(dirPath, hashtag + ".json");
 
@@ -18,11 +20,24 @@ async function storeDocumentID(values, hashtag) {
          data = await JSON.parse(existingData);
       } catch (err) {
          console.log("nothing inside file");
-      }
+      };
 
       data.push(values);
       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+      ctx.reply("PQs stored successfully");
 
+
+      const editedhashTagInfoOnTS =  await ctx.telegram.editMessageMedia(1173903586, 325, undefined, Input.fromLocalFile(filePath))
+      if(!editedhashTagInfoOnTS) {
+         console.log("lol")
+         hashtagInfoOnTelegramServer = await ctx.telegram.sendDocument(chatID=1173903586, Input.fromLocalFile(filePath));
+      }
+      //    hashtagInfoOnTelegramServerMsgID = hashtagInfoOnTelegramServer.message_id
+      //    console.log(hashtagInfoOnTelegramServerMsgID);
+
+      // hashtagInfoFileID = hashtagInfoOnTelegramServer.document.file_id;
+      // console.log(hashtagInfoFileID)
+   
    } catch (err) {
       console.error(
          `Error creating or appending ${hashtag} directory or document:`,
@@ -71,4 +86,4 @@ async function storeDocument(
    });
 }
 
-module.exports = { storeDocumentID, getDocumentsID, storeDocument };
+module.exports = { storeDocumentID, getDocumentsID, storeDocument, hashtagInfoFileID };
