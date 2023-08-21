@@ -1,5 +1,4 @@
 const { Scenes, Markup } = require("telegraf");
-const csvtojson = require("csvtojson");
 const { getDocumentsID, storeDocumentID } = require("../pseudo_database");
 const birthdayScene = new Scenes.BaseScene("birthdayScene");
 const registerWithCSV = new Scenes.BaseScene("registerWithCSV");

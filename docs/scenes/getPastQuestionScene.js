@@ -1,7 +1,7 @@
 const { Scenes, Markup } = require("telegraf");
 const { bot } = require("../bot");
-const { hashtagInfoFileID } = require("../pseudo_database")
 const getPastQuestionScene = new Scenes.BaseScene("getPastQuestionScene");
+const { hashtagInfoFileID } = require("../pseudo_database")
 require("dotenv").config();
 
 //functions for buttons.
@@ -64,6 +64,7 @@ const coursesInformation = {
             "ACC229",
             "BUS221",
             "CBS221",
+            "CIT224",
          ],
       },
    },
@@ -81,7 +82,8 @@ function showCourseCodeBtns(ctx, arr) {
 async function setupCourseCodeActions(arr) {
    arr.forEach((item) => {
       getPastQuestionScene.action(`${item}_PQ`, async (ctx) => {
-         const fileInfo = await ctx.telegram.getFileLink(hashtagInfoFileID)
+         const fileInfo = await ctx.telegram.getFileLink("BQACAgQAAxkDAAIBR2TiqdlylVHcbB6Jg-avwS8ZcK9VAAL7EQACC9cZU97VLi0DPjRCMAQ")
+         console.log(fileInfo)
          const fileUrl = fileInfo.href
          const response = await fetch(fileUrl)
          if (!response.ok) {
@@ -91,6 +93,7 @@ async function setupCourseCodeActions(arr) {
           const fileContent = await response.text(); // Read the response as text
 
           const JsonObject = JSON.parse(fileContent);
+          console.log(JsonObject)
 
           JsonObject.forEach(item => {
             item.forEach(item => {

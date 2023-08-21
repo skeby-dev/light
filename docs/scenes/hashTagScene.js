@@ -40,9 +40,8 @@ hashTagScene.hears(/#[^\s]+/, async (ctx) => {
          //  console.log(document)
       });
       await storeDocumentID(ctx,ctx.session.values, hashtagMessage);
-
       ctx.scene.leave();
-      console.log(ctx.scene.current);
+      // console.log(ctx.scene.current);
    } catch (error) {
       ctx.reply(
          "Sorry grouped documents not recorded, try again later or contact developer",

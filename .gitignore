@@ -4,3 +4,5 @@ node_modules/
 ./package-lock.json
 package-lock.json
 .docs/scenes/weather_data
+light-bot-396600-209b8edb45d6.json
+./docs/lightIndex.json
