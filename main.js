@@ -15,8 +15,10 @@ const userKeyboardCommands = Markup.inlineKeyboard([
    [Markup.button.callback("Past questions 📖", "past_questions")],
 ]);
 
-bot.start((ctx) => {
+bot.start(async (ctx) => {
    const startPayload = ctx.startPayload;
+   const loll = await ctx.telegram.getFileLink("BQACAgQAAxkDAAOOZOJiS7dZncLBj1dVnP8kfCrVNiQAAiMSAAIK8RFT70cK5khVSu8wBA")
+   console.log(loll.href)
    if (startPayload) {
       console.log(startPayload);
    } else {

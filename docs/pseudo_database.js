@@ -1,13 +1,19 @@
-const { error } = require("console");
 const fs = require("fs");
-const async = require("async");
 const path = require("path");
+const { Input } = require("telegraf");
+const {
+   uploadFileToLightDrive,
+   downloadFromLightDrive,
+   updateFileinLightDrive,
+} = require("./driveFunctions");
+const lightFolderID = "1abDDNYRAVTUQgPxedOvd45e2o6OvT4OW";
+let lightIndex = {};
+let lightIndexID;
 
-
-
-async function storeDocumentID(values, hashtag) {
+async function storeDocumentID(ctx, values, hashtag) {
    const dirPath = path.join(__dirname, "PQ data");
-   const filePath = path.join(dirPath, hashtag + ".json");
+   const fileName = hashtag + ".json";
+   const filePath = path.join(dirPath, fileName);
 
    try {
       await fs.promises.mkdir(dirPath, { recursive: true });
@@ -22,7 +28,22 @@ async function storeDocumentID(values, hashtag) {
 
       data.push(values);
       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+      ctx.reply("PQs stored successfully");
 
+      hashtagInfoOnTelegramServer = await ctx.telegram.sendDocument(
+         (chatID = 1173903586),
+         Input.fromLocalFile(filePath)
+      );
+      hashtagInfoFileID = hashtagInfoOnTelegramServer.document.file_id;
+
+      lightIndex[hashtag] = hashtagInfoFileID;
+      const JsonIndexData = JSON.stringify(lightIndex);
+
+      await updateFileinLightDrive(
+         lightIndexID,
+         JsonIndexData,
+         "application/json"
+      );
    } catch (err) {
       console.error(
          `Error creating or appending ${hashtag} directory or document:`,
@@ -30,6 +51,30 @@ async function storeDocumentID(values, hashtag) {
       );
    }
 }
+
+async function getPQIndexFromGoogleDrive() {
+   try {
+      lightIndex = await downloadFromLightDrive(lightIndexID); //if light indexID is undefined will show error
+      if (!lightIndex) {
+         lightIndex = {};
+         const filePath = path.join(__dirname, "lightIndex.json");
+
+         JsonData = JSON.stringify(lightIndex, null, 2);
+
+         await fs.promises.writeFile(filePath, JsonData);
+         lightIndexID = await uploadFileToLightDrive(
+            "lightIndex",
+            lightFolderID,
+            filePath
+         );
+         console.log(lightIndexID);
+      }
+   } catch (error) {
+      console.error("Error Getting PQ Index Data:", error);
+   }
+}
+
+getPQIndexFromGoogleDrive();
 
 function getDocumentsID(hashtag) {
    try {
