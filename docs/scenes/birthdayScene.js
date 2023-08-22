@@ -1,5 +1,5 @@
 const { Scenes, Markup } = require("telegraf");
-const { getDocumentsID, storeDocumentID } = require("../pseudo_database");
+const csvParser = require("csv-parser")
 const birthdayScene = new Scenes.BaseScene("birthdayScene");
 const registerWithCSV = new Scenes.BaseScene("registerWithCSV");
 const registerBirthdayNameScene = new Scenes.BaseScene(
@@ -99,13 +99,29 @@ registerWithCSV.on("document", async (ctx) => {
    const documentID = ctx.message.document.file_id
    const groupName = ctx.chat.title
    if (ctx.message.document.mime_type == "text/csv") {
-        const result = await ctx.telegram.sendDocument("-881489732", documentID, {
-            caption: documentID,
-        })
-        if(result){
-            ctx.reply("Your birthday file has been securely stored. If you need further assistance, feel free to contact developer.");
-            ctx.scene.leave()
-        }
+      const result = await ctx.telegram.sendDocument("-881489732", documentID, {
+         caption: documentID,
+      })
+      if(result){
+         ctx.reply("Your birthday file has been securely stored. If you need further assistance, feel free to contact developer.");
+         ctx.scene.leave()
+      }
+      const loll = await ctx.telegram.getFileLink(documentID);
+      fileUrl = loll.href;
+   
+      const response = await fetch(fileUrl);
+      const arrBuffer = await response.arrayBuffer();
+      const fileBuffer = Buffer.from(arrBuffer);
+   
+      const jsonData = [];
+      csvParser()
+         .on('data', (data) => {
+            jsonData.push(data);
+         })
+         .on('end', () => {
+            console.log(jsonData);
+         })
+         .end(fileBuffer.toString('utf-8'));
    } else {
       ctx.reply(
          "Sorry document provided is not saved as an csv file e\\.g _*accounting birthdays\\.csv*_\\.\n If issue persist please contact developer",
@@ -114,59 +130,10 @@ registerWithCSV.on("document", async (ctx) => {
          }
       );
    }
-});
 
-registerBirthdayNameScene.enter((ctx) => {
-   ctx.reply("Please send name of celebrant\\. *_\\*required_*", {
-      parse_mode: "MarkdownV2",
-   });
-});
-
-registerBirthdayNameScene.on("text", async (ctx) => {
-   await ctx.reply(`Celebrant name set to *_${ctx.message.text}_* ✅`, {
-      parse_mode: "MarkdownV2",
-   });
-   ctx.scene.enter("registerBirthdayUsername");
-});
-
-registerBirthdayUsernameScene.enter((ctx) => {
-   const replyKeyboard = Markup.inlineKeyboard([
-      Markup.button.callback("Skip", "skip"),
-   ])
-      .oneTime()
-      .resize();
-   ctx.reply("Please enter celebrant username e.g @gb0ye", replyKeyboard);
-});
-
-registerBirthdayUsernameScene.on("text", async (ctx) => {
-   try {
-      await ctx.reply(`Celebrant username set to *_@${ctx.message.text}_* ✅`, {
-         parse_mode: "MarkdownV2",
-      });
-      ctx.scene.enter("registerBirthdayDate");
-   } catch {
-      ctx.reply("Sorry something went wrong please try again later");
-      ctx.scene.leave();
-   }
-});
-
-registerBirthdayUsernameScene.action("skip", (ctx) => {
-   ctx.answerCbQuery();
-   ctx.editMessageText("Username skipped ☑️");
-   ctx.scene.enter("registerBirthdayDate");
-});
-
-registerBirthdayDateScene.enter((ctx) => {
-   ctx.reply(
-      "Please send birthday of celebrant in format *mm/dd/yyyy* e.g _1/10/2023_ for _10th January 2023_",
-      { parse_mode: "MarkdownV2" }
-   );
 });
 
 module.exports = {
    birthdayScene,
    registerWithCSV,
-   registerBirthdayNameScene,
-   registerBirthdayUsernameScene,
-   registerBirthdayDateScene,
 };
