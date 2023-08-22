@@ -29,34 +29,36 @@ async function storeDocumentID(ctx, values, hashtag) {
       data.push(values);
       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
       console.log(filePath)
-      ctx.reply("PQs stored successfully");
-
+      
       hashtagInfoOnTelegramServer = await ctx.telegram.sendDocument(
          (chatID = 1173903586),
          Input.fromLocalFile(filePath)
       );
       hashtagInfoFileID = hashtagInfoOnTelegramServer.document.file_id;
-
+      
+      await getPQIndexFromGoogleDrive()
       lightIndex[hashtag] = hashtagInfoFileID;
       const JsonIndexData = JSON.stringify(lightIndex);
       lightIndexID = lightIndexID ? undefined : "1HYsYQcc3UXmJjLVFk3ow9-BXVp9UHaE-";
-      console.log(lightIndexID)
       await updateFileinLightDrive(
          lightIndexID,
          JsonIndexData,
          "application/json"
-      );
-   } catch (err) {
-      console.error(
-         `Error creating or appending ${hashtag} directory or document:`,
-         err
-      );
+         );
+         ctx.reply("PQs stored successfully");
+      } catch (err) {
+         ctx.reply("Error storing documents")
+         console.error(
+            `Error creating or appending ${hashtag} directory or document:`,
+            err
+            );
    }
 }
 
 async function getPQIndexFromGoogleDrive() {
    try {
       lightIndex = await downloadFromLightDrive("1HYsYQcc3UXmJjLVFk3ow9-BXVp9UHaE-"); //if light indexID is undefined will show error
+      console.log(lightIndex)
       if (!lightIndex) {
 
          lightIndex = {};
@@ -70,14 +72,14 @@ async function getPQIndexFromGoogleDrive() {
             lightFolderID,
             filePath
          );
-         console.log(lightIndexID);
+         // console.log(lightIndexID);
       }
    } catch (error) {
       console.error("Error Getting PQ Index Data:", error);
    }
 }
 
-getPQIndexFromGoogleDrive();
+// getPQIndexFromGoogleDrive();
 
 function getDocumentsID(hashtag) {
    try {

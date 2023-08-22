@@ -76,22 +76,20 @@ function showCourseCodeBtns(ctx, arr) {
    arr.forEach((item) => {
       buttons.push([Markup.button.callback(item, `${item}_PQ`)]);
    });
-   console.log(buttons);
-   ctx.reply("Pick one", Markup.inlineKeyboard(buttons));
+   ctx.reply("Please Select Course Code", Markup.inlineKeyboard(buttons));
 }
 
 async function setupCourseCodeActions(arr) {
    arr.forEach((item) => {
       getPastQuestionScene.action(`${item}_PQ`, async (ctx) => {
+         ctx.answerCbQuery();
          try {
             const lightIndex = await downloadFromLightDrive(
                "1HYsYQcc3UXmJjLVFk3ow9-BXVp9UHaE-"
             );
             const pq_id = lightIndex[`#${item}_PQ`];
-            console.log(pq_id);
 
             const fileInfo = await ctx.telegram.getFileLink(pq_id);
-            console.log(fileInfo);
             const fileUrl = fileInfo.href;
             const response = await fetch(fileUrl);
             if (!response.ok) {
@@ -101,11 +99,9 @@ async function setupCourseCodeActions(arr) {
             }
             const fileContent = await response.text();
             const JsonObject = JSON.parse(fileContent);
-            console.log(JsonObject);
             const documentsIDs = [];
             JsonObject.forEach((item) => {
                item.forEach((item) => {
-                  //    ctx.sendDocument((document = `${item["pq_id"]}`));
                   documentsIDs.push(`${item["pq_id"]}`);
                });
             });
@@ -113,10 +109,9 @@ async function setupCourseCodeActions(arr) {
                type: "document",
                media: documentsIDs,
             }));
-            console.log(mediaGroup);
             ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
          } catch (error) {
-            ctx.reply("Error sending Past question");
+            ctx.reply("Past Question Not Available");
             console.error("Error occured in setupCourseCodeActions():", error);
          }
       });

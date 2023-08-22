@@ -18,25 +18,11 @@ const userKeyboardCommands = Markup.inlineKeyboard([
 
 bot.start(async (ctx) => {
    const startPayload = ctx.startPayload;
-   const loll = await ctx.telegram.getFileLink(
-      "BQACAgQAAxkDAAICpGTkAAFVmouMZoxTy7PTTqnGN4gPigACnRIAAgvXIVMjCixdGUHxlTAE"
-   );
-   fileUrl = loll.href;
-   console.log(fileUrl)
-
-//    const response = await fetch(fileUrl);
-//    const arrBuffer = await response.arrayBuffer();
-//    const fileBuffer = Buffer.from(arrBuffer);
-
-//    const jsonData = [];
-//    csvParser()
-//      .on('data', (data) => {
-//        jsonData.push(data);
-//      })
-//      .on('end', () => {
-//        console.log(jsonData);
-//      })
-//      .end(fileBuffer.toString('utf-8')); 
+   // const loll = await ctx.telegram.getFileLink(
+   //    "BQACAgQAAxkDAAICpGTkAAFVmouMZoxTy7PTTqnGN4gPigACnRIAAgvXIVMjCixdGUHxlTAE"
+   // );
+   // fileUrl = loll.href;
+   // console.log(fileUrl)
 //  });
 
    if (startPayload) {
