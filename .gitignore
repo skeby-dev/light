@@ -6,3 +6,6 @@ package-lock.json
 .docs/scenes/weather_data
 light-bot-396600-209b8edb45d6.json
 ./docs/lightIndex.json
+docs/lightIndex.json
+docs/PQ data
+test.js

@@ -1,8 +1,6 @@
 const fs = require("fs");
 const { google } = require("googleapis");
 const { GoogleAuth } = require("google-auth-library");
-const { file } = require("googleapis/build/src/apis/file");
-const { error } = require("console");
 const keyFile = process.env.GOOGLE_APP_CREDENTIALS;
 require("dotenv").config();
 
@@ -16,7 +14,8 @@ const drive = google.drive({
    auth,
 });
 
-async function uploadFileToLightDrive(name, parentID, filePath, mimeType) {
+
+async function uploadFileToLightDrive(name, parentID, filePath) {
    const requestBody = {
       name: name,
       parents: [parentID],
@@ -43,12 +42,13 @@ async function downloadFromLightDrive(fileId) {
    try {
       const response = await drive.files.get(
          { fileId, alt: "media" },
-         { responseType: "stream" }
       );
 
       const fileContent = response.data;
-      const parsedData = JSON.parse(fileContent);
-      return parsedData;
+      console.log(fileContent)
+      // const parsedData = JSON.parse(fileContent);
+      // console.log(parsedData+"loll")
+      return fileContent;
    } catch (error) {
       console.error("Error downloading file:", error);
    }
@@ -57,7 +57,7 @@ async function downloadFromLightDrive(fileId) {
 async function updateFileinLightDrive(fileID, newContent, mimeType) {
     try{
         const response = await drive.files.update({
-            fileId: fileID,
+            fileId:fileID,
             media: {
                 mimeType: "application/json",
                 body: newContent,

@@ -1,7 +1,8 @@
 const { Scenes, Markup } = require("telegraf");
 const { bot } = require("../bot");
 const getPastQuestionScene = new Scenes.BaseScene("getPastQuestionScene");
-const { hashtagInfoFileID } = require("../pseudo_database")
+const { hashtagInfoFileID } = require("../pseudo_database");
+const { downloadFromLightDrive } = require("../driveFunctions");
 require("dotenv").config();
 
 //functions for buttons.
@@ -82,30 +83,49 @@ function showCourseCodeBtns(ctx, arr) {
 async function setupCourseCodeActions(arr) {
    arr.forEach((item) => {
       getPastQuestionScene.action(`${item}_PQ`, async (ctx) => {
-         const fileInfo = await ctx.telegram.getFileLink("BQACAgQAAxkDAAIBR2TiqdlylVHcbB6Jg-avwS8ZcK9VAAL7EQACC9cZU97VLi0DPjRCMAQ")
-         console.log(fileInfo)
-         const fileUrl = fileInfo.href
-         const response = await fetch(fileUrl)
-         if (!response.ok) {
-            throw new Error(`Failed to fetch the file. Status code: ${response.status}`);
-          }
+         try {
+            const lightIndex = await downloadFromLightDrive(
+               "1HYsYQcc3UXmJjLVFk3ow9-BXVp9UHaE-"
+            );
+            const pq_id = lightIndex[`#${item}_PQ`];
+            console.log(pq_id);
 
-          const fileContent = await response.text(); // Read the response as text
-
-          const JsonObject = JSON.parse(fileContent);
-          console.log(JsonObject)
-
-          JsonObject.forEach(item => {
-            item.forEach(item => {
-               ctx.sendDocument(document=`${item["pq_id"]}`)
-            })
-          })
-        
+            const fileInfo = await ctx.telegram.getFileLink(pq_id);
+            console.log(fileInfo);
+            const fileUrl = fileInfo.href;
+            const response = await fetch(fileUrl);
+            if (!response.ok) {
+               throw new Error(
+                  `Failed to fetch the file. Status code: ${response.status}`
+               );
+            }
+            const fileContent = await response.text();
+            const JsonObject = JSON.parse(fileContent);
+            console.log(JsonObject);
+            const documentsIDs = [];
+            JsonObject.forEach((item) => {
+               item.forEach((item) => {
+                  //    ctx.sendDocument((document = `${item["pq_id"]}`));
+                  documentsIDs.push(`${item["pq_id"]}`);
+               });
+            });
+            const mediaGroup = documentsIDs.map((documentsIDs) => ({
+               type: "document",
+               media: documentsIDs,
+            }));
+            console.log(mediaGroup);
+            ctx.telegram.sendMediaGroup(ctx.chat.id, mediaGroup);
+         } catch (error) {
+            ctx.reply("Error sending Past question");
+            console.error("Error occured in setupCourseCodeActions():", error);
+         }
       });
    });
 }
 
-setupCourseCodeActions(coursesInformation.Accounting["200_level"].alpha_semester)
+setupCourseCodeActions(
+   coursesInformation.Accounting["200_level"].alpha_semester
+);
 
 function getPastQuestion(department, semester, level) {}
 

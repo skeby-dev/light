@@ -28,6 +28,7 @@ async function storeDocumentID(ctx, values, hashtag) {
 
       data.push(values);
       await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+      console.log(filePath)
       ctx.reply("PQs stored successfully");
 
       hashtagInfoOnTelegramServer = await ctx.telegram.sendDocument(
@@ -38,7 +39,8 @@ async function storeDocumentID(ctx, values, hashtag) {
 
       lightIndex[hashtag] = hashtagInfoFileID;
       const JsonIndexData = JSON.stringify(lightIndex);
-
+      lightIndexID = lightIndexID ? undefined : "1HYsYQcc3UXmJjLVFk3ow9-BXVp9UHaE-";
+      console.log(lightIndexID)
       await updateFileinLightDrive(
          lightIndexID,
          JsonIndexData,
@@ -54,8 +56,9 @@ async function storeDocumentID(ctx, values, hashtag) {
 
 async function getPQIndexFromGoogleDrive() {
    try {
-      lightIndex = await downloadFromLightDrive(lightIndexID); //if light indexID is undefined will show error
+      lightIndex = await downloadFromLightDrive("1HYsYQcc3UXmJjLVFk3ow9-BXVp9UHaE-"); //if light indexID is undefined will show error
       if (!lightIndex) {
+
          lightIndex = {};
          const filePath = path.join(__dirname, "lightIndex.json");
 
